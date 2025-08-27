@@ -1,37 +1,24 @@
-function Dashboard() {
+function Dashboard({ balance, income, expense }) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Current Balance */}
-      <div className="bg-white shadow rounded-2xl p-6 col-span-1">
-        <h2 className="text-lg font-semibold mb-2">Current Balance</h2>
-        <p className="text-3xl font-bold text-green-600">₹12,450</p>
-      </div>
+    <div className="bg-white shadow rounded-2xl p-6">
+      <h2 className="text-xl font-semibold mb-4">Dashboard</h2>
+      <p className="text-gray-600">
+        Quick glance at your balances, expenses, and incomes.
+      </p>
 
-      {/* Weekly Expenses */}
-      <div className="bg-white shadow rounded-2xl p-6 col-span-2">
-        <h2 className="text-lg font-semibold mb-4">Weekly Expenses</h2>
-        <div className="h-40 flex items-center justify-center text-gray-400">
-          📊 Chart placeholder
+      <div className="grid grid-cols-3 gap-4 mt-6">
+        <div className="bg-green-100 text-green-700 rounded-xl p-4 text-center">
+          <h3 className="text-lg font-bold">₹{balance}</h3>
+          <p>Balance</p>
         </div>
-      </div>
-
-      {/* Recent Transactions */}
-      <div className="bg-white shadow rounded-2xl p-6 col-span-3">
-        <h2 className="text-lg font-semibold mb-4">Recent Transactions</h2>
-        <ul className="space-y-2">
-          <li className="flex justify-between">
-            <span>Groceries</span>
-            <span className="text-red-500">- ₹1,200</span>
-          </li>
-          <li className="flex justify-between">
-            <span>Coffee</span>
-            <span className="text-red-500">- ₹150</span>
-          </li>
-          <li className="flex justify-between">
-            <span>Freelance Work</span>
-            <span className="text-green-500">+ ₹3,000</span>
-          </li>
-        </ul>
+        <div className="bg-red-100 text-red-700 rounded-xl p-4 text-center">
+          <h3 className="text-lg font-bold">₹{expense}</h3>
+          <p>Expenses</p>
+        </div>
+        <div className="bg-blue-100 text-blue-700 rounded-xl p-4 text-center">
+          <h3 className="text-lg font-bold">₹{income}</h3>
+          <p>Income</p>
+        </div>
       </div>
     </div>
   );

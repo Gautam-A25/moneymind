@@ -1,27 +1,14 @@
 function Insights() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* Spending Categories */}
-      <div className="bg-white shadow rounded-2xl p-6">
-        <h2 className="text-lg font-semibold mb-4">Spending by Category</h2>
-        <div className="h-40 flex items-center justify-center text-gray-400">
-          🥧 Pie Chart placeholder
-        </div>
-      </div>
+    <div className="bg-white shadow rounded-2xl p-6">
+      <h2 className="text-xl font-semibold mb-4">Insights</h2>
+      <p className="text-gray-600">
+        Visual breakdowns of your spending and income trends.
+      </p>
 
-      {/* Savings Goals */}
-      <div className="bg-white shadow rounded-2xl p-6">
-        <h2 className="text-lg font-semibold mb-4">Savings Goals</h2>
-        <ul className="space-y-2">
-          <li className="flex justify-between">
-            <span>New Laptop</span>
-            <span className="text-green-600">60% complete</span>
-          </li>
-          <li className="flex justify-between">
-            <span>Emergency Fund</span>
-            <span className="text-green-600">30% complete</span>
-          </li>
-        </ul>
+      {/* Placeholder for future charts */}
+      <div className="mt-6 h-48 flex items-center justify-center border rounded-xl text-gray-400">
+        📊 Charts will go here
       </div>
     </div>
   );

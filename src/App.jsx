@@ -109,6 +109,8 @@ function App() {
               balance={balance}
               income={totalIncome}
               expense={totalExpense}
+              entries={entries}
+              setActivePage={setActivePage}
             />
           )}
           {activePage === "insights" && <Insights />}

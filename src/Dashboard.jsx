@@ -1,7 +1,15 @@
 import React from "react";
 import { Plus } from "lucide-react";
 
-export default function Dashboard({ balance, income, expense }) {
+export default function Dashboard({
+  balance,
+  income,
+  expense,
+  entries,
+  setActivePage,
+}) {
+  const recentExpenses = entries.filter((entry) => entry.amount < 0).slice(-5);
+
   return (
     <div className="w-full">
       <h1 className="text-2xl font-semibold mb-6">Dashboard</h1>
@@ -28,9 +36,30 @@ export default function Dashboard({ balance, income, expense }) {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
         {/* Daily Ledger Block */}
-        <section className="bg-white shadow rounded-2xl p-6 col-span-1 lg:col-span-2">
+        <section
+          onClick={() => setActivePage("ledger")}
+          className="bg-white shadow rounded-2xl p-6 col-span-1 lg:col-span-2 relative cursor-pointer overflow-hidden"
+        >
           <h3 className="text-xl font-semibold mb-2">Daily Ledger</h3>
-          <p className="text-gray-500">Ledger entries go here</p>
+          <ul className="space-y-2 mb-4">
+            {recentExpenses.length > 0 ? (
+              recentExpenses.map((entry) => (
+                <li
+                  key={entry.id}
+                  className="flex justify-between items-center p-2 rounded-lg bg-red-100"
+                >
+                  <span>{entry.label}</span>
+                  <span className="font-semibold text-red-600">
+                    ₹{Math.abs(entry.amount)}
+                  </span>
+                </li>
+              ))
+            ) : (
+              <p className="text-gray-500">No expenses today. Add one now!</p>
+            )}
+          </ul>
+          {/* Fade effect at the bottom */}
+          <div className="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
         </section>
 
         {/* Calendar Block */}

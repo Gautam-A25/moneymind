@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Pencil, Save, Trash2, Plus } from "lucide-react";
 
-function Ledger({ entries, setEntries }) {
+function Ledger({ entries, setEntries, selectedDate }) {
   const [label, setLabel] = useState("");
   const [amount, setAmount] = useState("");
   const [editingId, setEditingId] = useState(null);
@@ -17,8 +17,9 @@ function Ledger({ entries, setEntries }) {
       id: Date.now(),
       label,
       amount: finalAmount,
+      date: selectedDate.toISOString(), // Save the date with the entry
     };
-    setEntries([...entries, newEntry]);
+    setEntries((prevEntries) => [...prevEntries, newEntry]);
     setLabel("");
     setAmount("");
   };
@@ -32,8 +33,8 @@ function Ledger({ entries, setEntries }) {
 
   // Save edit
   const saveEdit = () => {
-    setEntries(
-      entries.map((e) =>
+    setEntries((prevEntries) =>
+      prevEntries.map((e) =>
         e.id === editingId ? { ...e, label, amount: parseFloat(amount) } : e
       )
     );
@@ -44,13 +45,13 @@ function Ledger({ entries, setEntries }) {
 
   // Delete entry
   const deleteEntry = () => {
-    setEntries(entries.filter((e) => e.id !== editingId));
+    setEntries((prevEntries) => prevEntries.filter((e) => e.id !== editingId));
     setEditingId(null);
     setLabel("");
     setAmount("");
   };
 
-  // Derived values
+  // Derived values for the currently displayed entries
   const totalIncome = entries
     .filter((e) => e.amount > 0)
     .reduce((sum, e) => sum + e.amount, 0);
@@ -63,24 +64,29 @@ function Ledger({ entries, setEntries }) {
 
   return (
     <div className="bg-white shadow rounded-2xl p-6 w-full">
-      <h2 className="text-xl font-semibold mb-4">Daily Ledger</h2>
+      <h2 className="text-xl font-semibold mb-4">
+        Daily Ledger For{" "}
+        {selectedDate.toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })}
+      </h2>
 
       {/* Input Fields (only visible when not editing) */}
       {!editingId && (
-        <div className="flex gap-2 mb-4 items-center">
-          {/* Input fields */}
+        <div className="flex gap-2 mb-4 items-center flex-wrap">
           <input
             type="text"
             placeholder="Label"
             value={label}
             onChange={(e) => setLabel(e.target.value)}
-            className="border p-2 rounded-lg w-1/2"
+            className="border p-2 rounded-lg flex-grow"
           />
-          <div className="flex items-center border rounded-lg overflow-hidden w-1/4">
-            {/* Toggle buttons */}
+          <div className="flex items-center border rounded-lg overflow-hidden">
             <button
               onClick={() => setTransactionType("income")}
-              className={`w-1/2 p-2 font-semibold transition-colors duration-200 ${
+              className={`px-3 py-2 font-semibold transition-colors duration-200 ${
                 transactionType === "income"
                   ? "bg-green-500 text-white"
                   : "bg-gray-200 text-gray-700"
@@ -90,7 +96,7 @@ function Ledger({ entries, setEntries }) {
             </button>
             <button
               onClick={() => setTransactionType("expense")}
-              className={`w-1/2 p-2 font-semibold transition-colors duration-200 ${
+              className={`px-3 py-2 font-semibold transition-colors duration-200 ${
                 transactionType === "expense"
                   ? "bg-red-500 text-white"
                   : "bg-gray-200 text-gray-700"
@@ -104,19 +110,17 @@ function Ledger({ entries, setEntries }) {
             placeholder="Amount"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="border p-2 rounded-lg w-1/4"
+            className="border p-2 rounded-lg w-28"
           />
-          {/* Add button */}
           <button
             onClick={addEntry}
             className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2"
           >
             <Plus size={18} /> Add
           </button>
-          {/* Edit/Done button */}
           <button
             onClick={() => setIsEditMode(!isEditMode)}
-            className="ml-1 px-3 py-2 w-20 rounded-lg bg-blue-500 text-white text-center"
+            className="px-3 py-2 w-20 rounded-lg bg-blue-500 text-white text-center"
           >
             {isEditMode ? "Done" : "Edit"}
           </button>

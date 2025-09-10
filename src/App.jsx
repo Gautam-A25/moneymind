@@ -8,6 +8,7 @@ import Ichigo from "./assets/Ichigo.jpeg";
 
 function App() {
   const [activePage, setActivePage] = useState("dashboard");
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [entries, setEntries] = useState([
     { id: 1, label: "Breakfast", amount: -120 },
     { id: 2, label: "Lunch", amount: -200 },
@@ -111,11 +112,18 @@ function App() {
               expense={totalExpense}
               entries={entries}
               setActivePage={setActivePage}
+              selectedDate={selectedDate}
+              setSelectedDate={setSelectedDate}
             />
           )}
           {activePage === "insights" && <Insights />}
           {activePage === "ledger" && (
-            <DailyLedger entries={entries} setEntries={setEntries} />
+            <DailyLedger
+              entries={entries}
+              setEntries={setEntries}
+              selectedDate={selectedDate}
+              setSelectedDate={setSelectedDate}
+            />
           )}
           {activePage === "settings" && (
             <div className="text-center p-12">

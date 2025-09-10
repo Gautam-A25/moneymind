@@ -1,4 +1,6 @@
 import React from "react";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
 import { Plus } from "lucide-react";
 
 export default function Dashboard({
@@ -7,11 +9,13 @@ export default function Dashboard({
   expense,
   entries,
   setActivePage,
+  selectedDate,
+  setSelectedDate,
 }) {
   const recentExpenses = entries.filter((entry) => entry.amount < 0).slice(-5);
 
   return (
-    <div className="w-full">
+    <div className="w-full scale-[0.9] origin-top h-100">
       <h1 className="text-2xl font-semibold mb-6">Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Dashboard Cards (Placeholder based on wireframe and props) */}
@@ -40,7 +44,14 @@ export default function Dashboard({
           onClick={() => setActivePage("ledger")}
           className="bg-white shadow rounded-2xl p-6 col-span-1 lg:col-span-2 relative cursor-pointer overflow-hidden"
         >
-          <h3 className="text-xl font-semibold mb-2">Daily Ledger</h3>
+          <h3 className="text-xl font-semibold mb-2">
+            Daily Ledger For{" "}
+            {selectedDate.toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+          </h3>
           <ul className="space-y-2 mb-4">
             {recentExpenses.length > 0 ? (
               recentExpenses.map((entry) => (
@@ -65,7 +76,15 @@ export default function Dashboard({
         {/* Calendar Block */}
         <section className="bg-white shadow rounded-2xl p-6 col-span-1">
           <h3 className="text-xl font-semibold mb-2">Calendar</h3>
-          <p className="text-gray-500">Calendar widget goes here</p>
+          <Calendar
+            onChange={setSelectedDate}
+            value={selectedDate}
+            className="rounded-md border"
+          />
+          <p className="text-gray-600 text-sm mt-2">
+            Selected date:{" "}
+            <span className="font-medium">{selectedDate.toDateString()}</span>
+          </p>
         </section>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">

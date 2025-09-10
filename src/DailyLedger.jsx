@@ -1,10 +1,6 @@
-import { useState } from "react";
 import Ledger from "./Ledger";
 
-function DailyLedger({ entries, setEntries }) {
-  // State for the currently selected date, initialized to the current day.
-  const [selectedDate, setSelectedDate] = useState(new Date());
-
+function DailyLedger({ entries, setEntries, selectedDate, setSelectedDate }) {
   // Function to generate the dates for the calendar bar
   const generateDates = (startDate) => {
     const dates = [];

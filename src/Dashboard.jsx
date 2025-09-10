@@ -12,7 +12,14 @@ export default function Dashboard({
   selectedDate,
   setSelectedDate,
 }) {
-  const recentExpenses = entries.filter((entry) => entry.amount < 0).slice(-5);
+  const filteredEntries = entries.filter((entry) => {
+    const entryDate = new Date(entry.date);
+    return (
+      entryDate.getFullYear() === selectedDate.getFullYear() &&
+      entryDate.getMonth() === selectedDate.getMonth() &&
+      entryDate.getDate() === selectedDate.getDate()
+    );
+  });
 
   return (
     <div className="w-full scale-[0.9] origin-top h-100">
@@ -53,20 +60,30 @@ export default function Dashboard({
             })}
           </h3>
           <ul className="space-y-2 mb-4">
-            {recentExpenses.length > 0 ? (
-              recentExpenses.map((entry) => (
+            {filteredEntries.length > 0 ? (
+              filteredEntries.map((entry) => (
                 <li
                   key={entry.id}
-                  className="flex justify-between items-center p-2 rounded-lg bg-red-100"
+                  className={`flex justify-between items-center p-2 rounded-lg ${
+                    entry.amount < 0 ? "bg-red-100" : "bg-green-100"
+                  }`}
                 >
                   <span>{entry.label}</span>
-                  <span className="font-semibold text-red-600">
-                    ₹{Math.abs(entry.amount)}
+                  <span
+                    className={`font-semibold ${
+                      entry.amount < 0 ? "text-red-600" : "text-green-600"
+                    }`}
+                  >
+                    {entry.amount < 0
+                      ? `-₹${Math.abs(entry.amount)}`
+                      : `+₹${entry.amount}`}
                   </span>
                 </li>
               ))
             ) : (
-              <p className="text-gray-500">No expenses today. Add one now!</p>
+              <p className="text-gray-500">
+                No transactions on this date. Add one now!
+              </p>
             )}
           </ul>
           {/* Fade effect at the bottom */}

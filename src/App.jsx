@@ -1,19 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Dashboard from "./Dashboard";
 import Insights from "./Insights";
 import DailyLedger from "./DailyLedger";
-// Import icons for the sidebar
 import { Home, BarChart2, Book, Settings, Menu } from "lucide-react";
 import Ichigo from "./assets/Ichigo.jpeg";
 
 function App() {
   const [activePage, setActivePage] = useState("dashboard");
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [entries, setEntries] = useState([
-    { id: 1, label: "Breakfast", amount: -120 },
-    { id: 2, label: "Lunch", amount: -200 },
-    { id: 3, label: "Freelance Payment", amount: 2500 },
-  ]);
+  const [entries, setEntries] = useState(() => {
+    const saved = localStorage.getItem("entries");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("entries", JSON.stringify(entries));
+  }, [entries]);
 
   const totalIncome = entries
     .filter((e) => e.amount > 0)

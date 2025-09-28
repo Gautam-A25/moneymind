@@ -2,15 +2,27 @@ import { useState, useEffect } from "react";
 import Dashboard from "./pages/Dashboard";
 import Insights from "./pages/Insights";
 import DailyLedger from "./components/DailyLedger";
+import AddTransactionForm from "./components/AddTransactionForm";
 import { Home, BarChart2, Book, Settings, Menu } from "lucide-react";
 import Ichigo from "./assets/Ichigo.jpeg";
 
 function App() {
   const [activePage, setActivePage] = useState("dashboard");
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [entries, setEntries] = useState(() => {
     const saved = localStorage.getItem("entries");
-    return saved ? JSON.parse(saved) : [];
+    // When parsing, make sure to convert date strings back to Date objects
+    // This ensures components like the calendar work correctly.
+    if (saved) {
+      const parsedEntries = JSON.parse(saved);
+      return parsedEntries.map((entry) => ({
+        ...entry,
+        date: new Date(entry.date),
+      }));
+    }
+    return [];
   });
 
   useEffect(() => {
@@ -113,9 +125,11 @@ function App() {
               income={totalIncome}
               expense={totalExpense}
               entries={entries}
+              setEntries={setEntries}
               setActivePage={setActivePage}
               selectedDate={selectedDate}
               setSelectedDate={setSelectedDate}
+              onAddTransactionClick={() => setIsModalOpen(true)}
             />
           )}
           {activePage === "insights" && <Insights />}
@@ -137,6 +151,18 @@ function App() {
           )}
         </main>
       </div>
+
+      {/* Modal rendered at the top level */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+          <AddTransactionForm
+            selectedDate={selectedDate}
+            entries={entries}
+            setEntries={setEntries}
+            onClose={() => setIsModalOpen(false)}
+          />
+        </div>
+      )}
     </div>
   );
 }

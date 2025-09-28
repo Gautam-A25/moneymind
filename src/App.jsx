@@ -132,7 +132,7 @@ function App() {
               onAddTransactionClick={() => setIsModalOpen(true)}
             />
           )}
-          {activePage === "insights" && <Insights />}
+          {activePage === "insights" && <Insights entries={entries} />}
           {activePage === "ledger" && (
             <DailyLedger
               entries={entries}

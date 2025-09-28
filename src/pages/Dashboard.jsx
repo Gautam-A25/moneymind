@@ -120,7 +120,7 @@ export default function Dashboard({
           <h3 className="text-xl font-semibold mb-4">Quick Actions</h3>
           <button
             onClick={onAddTransactionClick} // This now calls the function from App.jsx
-            className="flex items-center gap-2 px-6 py-3 rounded-lg bg-green-500 text-white font-semibold hover:bg-green-600 transition-colors"
+            className="flex items-center gap-2 px-6 py-3 cursor-pointer rounded-lg bg-green-500 text-white font-semibold hover:bg-green-600 transition-colors"
           >
             <Plus size={20} /> Add Transaction
           </button>

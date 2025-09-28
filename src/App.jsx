@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import Dashboard from "./Dashboard";
-import Insights from "./Insights";
-import DailyLedger from "./DailyLedger";
+import Dashboard from "./pages/Dashboard";
+import Insights from "./pages/Insights";
+import DailyLedger from "./components/DailyLedger";
 import { Home, BarChart2, Book, Settings, Menu } from "lucide-react";
 import Ichigo from "./assets/Ichigo.jpeg";
 

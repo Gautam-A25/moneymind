@@ -1,4 +1,4 @@
-import Ledger from "./Ledger";
+import Ledger from "../pages/Ledger";
 
 function DailyLedger({ entries, setEntries, selectedDate, setSelectedDate }) {
   // Function to generate the dates for the calendar bar

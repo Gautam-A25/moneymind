@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { ChevronDown } from "lucide-react";
 
 export default function AddTransactionForm({
   selectedDate,
@@ -9,10 +10,11 @@ export default function AddTransactionForm({
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
   const [type, setType] = useState("expense");
+  const [transactionDate, setTransactionDate] = useState(selectedDate);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!title || !amount) return; // Basic validation
+    if (!title || !amount) return;
     const newEntry = {
       id: Date.now(),
       label: title,
@@ -20,29 +22,52 @@ export default function AddTransactionForm({
         type === "expense"
           ? -Math.abs(parseFloat(amount))
           : Math.abs(parseFloat(amount)),
-      date: selectedDate.toISOString(), // Store as ISO string for consistency
+      date: transactionDate.toISOString(),
     };
     setEntries([...entries, newEntry]);
     onClose();
   };
 
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 15 }, (_, i) => currentYear - 10 + i);
+  const months = Array.from({ length: 12 }, (_, i) =>
+    new Date(0, i).toLocaleString("en-GB", { month: "long" })
+  );
+  const daysInMonth = new Date(
+    transactionDate.getFullYear(),
+    transactionDate.getMonth() + 1,
+    0
+  ).getDate();
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+
+  const handleDateChange = (part, value) => {
+    const newDate = new Date(transactionDate);
+    if (part === "day") newDate.setDate(value);
+    if (part === "month") newDate.setMonth(value);
+    if (part === "year") newDate.setFullYear(value);
+
+    // This handles cases like switching from a 31-day month to a 30-day month
+    if (newDate.getDate() !== transactionDate.getDate() && part !== "day") {
+      newDate.setDate(
+        Math.min(
+          transactionDate.getDate(),
+          new Date(newDate.getFullYear(), newDate.getMonth() + 1, 0).getDate()
+        )
+      );
+    }
+
+    setTransactionDate(newDate);
+  };
+
   return (
     <form
       onSubmit={handleSubmit}
-      // Added a click handler to prevent closing when clicking inside the form
       onClick={(e) => e.stopPropagation()}
       className="bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl"
     >
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h3 className="font-semibold text-lg">
-          Date:{" "}
-          {selectedDate.toLocaleDateString("en-GB", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}
-        </h3>
+        <h3 className="font-semibold text-lg">Add Transaction</h3>
         <button
           type="button"
           onClick={onClose}
@@ -50,6 +75,75 @@ export default function AddTransactionForm({
         >
           ✕
         </button>
+      </div>
+
+      {/* --- Date Selector Dropdowns --- */}
+      <div className="mb-4">
+        <label className="block mb-2 text-sm font-medium text-gray-600">
+          Date
+        </label>
+        <div className="grid grid-cols-3 gap-2">
+          {/* Day */}
+          <div className="relative">
+            <select
+              value={transactionDate.getDate()}
+              onChange={(e) =>
+                handleDateChange("day", parseInt(e.target.value))
+              }
+              className="w-full p-2.5 bg-gray-100 rounded-lg appearance-none border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+            >
+              {days.map((day) => (
+                <option key={day} value={day}>
+                  {day}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              size={18}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+            />
+          </div>
+          {/* Month */}
+          <div className="relative">
+            <select
+              value={transactionDate.getMonth()}
+              onChange={(e) =>
+                handleDateChange("month", parseInt(e.target.value))
+              }
+              className="w-full p-2.5 bg-gray-100 rounded-lg appearance-none border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+            >
+              {months.map((month, index) => (
+                <option key={month} value={index}>
+                  {month}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              size={18}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+            />
+          </div>
+          {/* Year */}
+          <div className="relative">
+            <select
+              value={transactionDate.getFullYear()}
+              onChange={(e) =>
+                handleDateChange("year", parseInt(e.target.value))
+              }
+              className="w-full p-2.5 bg-gray-100 rounded-lg appearance-none border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+            >
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              size={18}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Form Fields */}

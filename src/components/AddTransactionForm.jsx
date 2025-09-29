@@ -11,6 +11,17 @@ export default function AddTransactionForm({
   const [amount, setAmount] = useState("");
   const [type, setType] = useState("expense");
   const [transactionDate, setTransactionDate] = useState(selectedDate);
+  const [category, setCategory] = useState("Other");
+
+  const categories = [
+    "Food & Drink",
+    "Shopping",
+    "Transport",
+    "Bills & Utilities",
+    "Entertainment",
+    "Salary",
+    "Other",
+  ];
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -23,6 +34,7 @@ export default function AddTransactionForm({
           ? -Math.abs(parseFloat(amount))
           : Math.abs(parseFloat(amount)),
       date: transactionDate.toISOString(),
+      category: category,
     };
     setEntries([...entries, newEntry]);
     onClose();
@@ -46,7 +58,6 @@ export default function AddTransactionForm({
     if (part === "month") newDate.setMonth(value);
     if (part === "year") newDate.setFullYear(value);
 
-    // This handles cases like switching from a 31-day month to a 30-day month
     if (newDate.getDate() !== transactionDate.getDate() && part !== "day") {
       newDate.setDate(
         Math.min(
@@ -77,7 +88,7 @@ export default function AddTransactionForm({
         </button>
       </div>
 
-      {/* --- Date Selector Dropdowns --- */}
+      {/* Date Selector Dropdowns */}
       <div className="mb-4">
         <label className="block mb-2 text-sm font-medium text-gray-600">
           Date
@@ -164,12 +175,33 @@ export default function AddTransactionForm({
       <input
         type="number"
         step="0.01"
-        className="w-full p-2.5 mb-6 bg-gray-100 rounded-lg border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+        className="w-full p-2.5 mb-4 bg-gray-100 rounded-lg border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
         placeholder="e.g., 150.00"
         required
       />
+
+      <label className="block mb-2 text-sm font-medium text-gray-600">
+        Category
+      </label>
+      <div className="relative mb-6">
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-full p-2.5 bg-gray-100 rounded-lg appearance-none border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+        >
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+        <ChevronDown
+          size={18}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+        />
+      </div>
 
       {/* Type Selector */}
       <div className="flex gap-4 mb-6">

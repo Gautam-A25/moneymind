@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from "../constants";
 import { Pencil, Save, Trash2, Plus } from "lucide-react";
 
 function Ledger({ entries, setEntries, selectedDate }) {
@@ -8,15 +9,33 @@ function Ledger({ entries, setEntries, selectedDate }) {
   const [editingId, setEditingId] = useState(null);
   const [transactionType, setTransactionType] = useState("expense");
 
-  const categories = [
-    "Food & Drink",
-    "Shopping",
-    "Transport",
-    "Bills & Utilities",
-    "Entertainment",
-    "Salary",
-    "Other",
-  ];
+  const incomeCategoryNames = useMemo(
+    () => INCOME_CATEGORIES.map((c) => c.name),
+    []
+  );
+  const expenseCategoryNames = useMemo(
+    () => EXPENSE_CATEGORIES.map((c) => c.name),
+    []
+  );
+
+  useEffect(() => {
+    if (transactionType === "income") {
+      if (!incomeCategoryNames.includes(category)) {
+        setCategory(incomeCategoryNames[0] || "");
+      }
+    } else {
+      if (!expenseCategoryNames.includes(category)) {
+        setCategory(
+          expenseCategoryNames.find((c) => c === "Other") ||
+            expenseCategoryNames[0] ||
+            ""
+        );
+      }
+    }
+  }, [transactionType, category, incomeCategoryNames, expenseCategoryNames]);
+
+  const categories =
+    transactionType === "income" ? incomeCategoryNames : expenseCategoryNames;
 
   const addEntry = () => {
     if (!label || !amount) return;

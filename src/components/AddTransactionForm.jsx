@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { ChevronDown } from "lucide-react";
+// 1. Import the specific category lists instead of ALL_CATEGORIES
+import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from "../constants";
 
 export default function AddTransactionForm({
   selectedDate,
@@ -13,15 +15,35 @@ export default function AddTransactionForm({
   const [transactionDate, setTransactionDate] = useState(selectedDate);
   const [category, setCategory] = useState("Other");
 
-  const categories = [
-    "Food & Drink",
-    "Shopping",
-    "Transport",
-    "Bills & Utilities",
-    "Entertainment",
-    "Salary",
-    "Other",
-  ];
+  // 2. Create separate lists for dropdowns
+  const incomeCategoryNames = useMemo(
+    () => INCOME_CATEGORIES.map((c) => c.name),
+    []
+  );
+  const expenseCategoryNames = useMemo(
+    () => EXPENSE_CATEGORIES.map((c) => c.name),
+    []
+  );
+
+  // 3. This effect syncs the category when the type changes
+  useEffect(() => {
+    if (type === "income") {
+      // If the current category isn't an income one, reset it
+      if (!incomeCategoryNames.includes(category)) {
+        setCategory(incomeCategoryNames[0] || ""); // Default to first income category
+      }
+    } else {
+      // type === 'expense'
+      // If the current category isn't an expense one, reset it
+      if (!expenseCategoryNames.includes(category)) {
+        setCategory(
+          expenseCategoryNames.find((c) => c === "Other") ||
+            expenseCategoryNames[0] ||
+            ""
+        ); // Default to 'Other'
+      }
+    }
+  }, [type, category, incomeCategoryNames, expenseCategoryNames]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -69,6 +91,10 @@ export default function AddTransactionForm({
 
     setTransactionDate(newDate);
   };
+
+  // 4. Determine which list to show
+  const categoriesToShow =
+    type === "income" ? incomeCategoryNames : expenseCategoryNames;
 
   return (
     <form
@@ -182,29 +208,8 @@ export default function AddTransactionForm({
         required
       />
 
-      <label className="block mb-2 text-sm font-medium text-gray-600">
-        Category
-      </label>
-      <div className="relative mb-6">
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-full p-2.5 bg-gray-100 rounded-lg appearance-none border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
-        >
-          {categories.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
-        <ChevronDown
-          size={18}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-        />
-      </div>
-
-      {/* Type Selector */}
-      <div className="flex gap-4 mb-6">
+      {/* 5. Type Selector (Moved before Category) */}
+      <div className="flex gap-4 mb-4">
         <button
           type="button"
           className={`flex-1 py-2.5 rounded-lg font-semibold transition-colors ${
@@ -227,6 +232,28 @@ export default function AddTransactionForm({
         >
           Expense
         </button>
+      </div>
+
+      {/* 6. Category Dropdown (Now dynamic) */}
+      <label className="block mb-2 text-sm font-medium text-gray-600">
+        Category
+      </label>
+      <div className="relative mb-6">
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-full p-2.5 bg-gray-100 rounded-lg appearance-none border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+        >
+          {categoriesToShow.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+        <ChevronDown
+          size={18}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+        />
       </div>
 
       {/* Submit Button */}

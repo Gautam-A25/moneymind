@@ -1,4 +1,5 @@
 import React from "react";
+import { CATEGORY_COLOR_MAP } from "../constants";
 import {
   Chart as ChartJS,
   ArcElement,
@@ -9,7 +10,8 @@ import {
   BarElement,
   Title,
 } from "chart.js";
-import { Doughnut, Bar } from "react-chartjs-2";
+import { Doughnut, Pie } from "react-chartjs-2";
+import TrendChart from "../components/TrendChart"; // Import the new reusable chart
 
 // Register the components from Chart.js that we'll be using
 ChartJS.register(
@@ -48,65 +50,35 @@ export default function Insights({ entries }) {
     ],
   };
 
-  // --- Data Processing for Weekly Bar Chart ---
-  const labels = [];
-  const incomeByDay = {};
-  const expenseByDay = {};
+  // --- Data Processing for Category Pie Chart ---
+  const expenses = entries.filter((e) => e.amount < 0);
 
-  // Initialize the last 7 days
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const dayLabel = d.toLocaleDateString("en-US", { weekday: "short" });
-    labels.push(dayLabel);
-    incomeByDay[dayLabel] = 0;
-    expenseByDay[dayLabel] = 0;
-  }
+  const spendingByCategory = expenses.reduce((acc, entry) => {
+    const category = entry.category || "Uncategorized";
+    acc[category] = (acc[category] || 0) + Math.abs(entry.amount);
+    return acc;
+  }, {});
 
-  // Aggregate data for the last 7 days
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const categoryLabels = Object.keys(spendingByCategory);
+  const categoryData = Object.values(spendingByCategory);
 
-  entries.forEach((entry) => {
-    const entryDate = new Date(entry.date);
-    if (entryDate >= sevenDaysAgo) {
-      const dayLabel = entryDate.toLocaleDateString("en-US", {
-        weekday: "short",
-      });
-      if (entry.amount > 0) {
-        incomeByDay[dayLabel] += entry.amount;
-      } else {
-        expenseByDay[dayLabel] += Math.abs(entry.amount);
-      }
-    }
-  });
+  const categoryColors = categoryLabels.map(
+    (label) => CATEGORY_COLOR_MAP[label] || "rgba(107, 114, 128, 0.8)"
+  ); // Default gray color
 
-  const barData = {
-    labels,
+  const categoryPieData = {
+    labels: categoryLabels,
     datasets: [
       {
-        label: "Income",
-        data: labels.map((label) => incomeByDay[label]),
-        backgroundColor: "rgba(22, 163, 74, 0.7)",
-      },
-      {
-        label: "Expense",
-        data: labels.map((label) => expenseByDay[label]),
-        backgroundColor: "rgba(220, 38, 38, 0.7)",
+        data: categoryData,
+        backgroundColor: categoryColors.slice(0, categoryLabels.length),
+        hoverBackgroundColor: categoryColors.slice(0, categoryLabels.length),
       },
     ],
   };
 
-  const barOptions = {
-    responsive: true,
-    plugins: {
-      legend: { position: "top" },
-      title: { display: true, text: "Income & Expense - Last 7 Days" },
-    },
-  };
-
   // --- Key Metrics Calculation ---
-  const avgDailyExpense = totalExpense > 0 ? (totalExpense / 30).toFixed(2) : 0; // Assuming a 30-day month for average
+  const avgDailyExpense = totalExpense > 0 ? (totalExpense / 30).toFixed(2) : 0;
 
   return (
     <div>
@@ -131,14 +103,12 @@ export default function Insights({ entries }) {
           )}
         </div>
 
-        {/* Bar Chart Card */}
+        {/* Trend Chart Card (Replaces old Bar Chart) */}
         <div className="bg-white shadow rounded-2xl p-6 lg:col-span-2">
-          <h2 className="text-xl font-semibold mb-4 text-center">
-            Weekly Breakdown
-          </h2>
           {entries.length > 0 ? (
             <div className="w-full h-64 mx-auto">
-              <Bar options={barOptions} data={barData} />
+              <TrendChart entries={entries} />{" "}
+              {/* We pass no size prop, so it defaults to "large" */}
             </div>
           ) : (
             <p className="text-center text-gray-500 mt-12">
@@ -147,10 +117,29 @@ export default function Insights({ entries }) {
           )}
         </div>
 
+        {/* Spending by Category Pie Chart */}
+        <div className="bg-white shadow rounded-2xl p-6 lg:col-span-2">
+          <h2 className="text-xl font-semibold mb-4 text-center">
+            Spending by Category
+          </h2>
+          {expenses.length > 0 ? (
+            <div className="w-full h-80 mx-auto flex justify-center">
+              <Pie
+                data={categoryPieData}
+                options={{ responsive: true, maintainAspectRatio: false }}
+              />
+            </div>
+          ) : (
+            <p className="text-center text-gray-500 mt-12">
+              No expense data to display.
+            </p>
+          )}
+        </div>
+
         {/* Key Metrics Card */}
-        <div className="bg-white shadow rounded-2xl p-6 lg:col-span-3">
+        <div className="bg-white shadow rounded-2xl p-6 lg:col-span-1">
           <h2 className="text-xl font-semibold mb-4">Key Metrics</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+          <div className="space-y-4 text-center">
             <div className="bg-blue-50 p-4 rounded-xl">
               <p className="text-sm text-blue-800 font-medium">Total Income</p>
               <p className="text-2xl font-bold text-green-600">

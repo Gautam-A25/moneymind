@@ -2,6 +2,7 @@ import React from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { Plus } from "lucide-react";
+import TrendChart from "../components/TrendChart";
 
 export default function Dashboard({
   balance,
@@ -111,8 +112,17 @@ export default function Dashboard({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         {/* Insights Block */}
         <section className="bg-white shadow rounded-2xl p-6">
-          <h3 className="text-xl font-semibold mb-2">Insights</h3>
-          <p className="text-gray-500">Charts & analytics go here</p>
+          <h3 className="text-xl font-semibold mb-4">Insights</h3>
+          {entries.length > 0 ? (
+            // Give the chart a container with a defined height
+            <div className="w-full h-48">
+              <TrendChart entries={entries} size="small" />
+            </div>
+          ) : (
+            <p className="text-gray-500">
+              No transactions yet to show insights.
+            </p>
+          )}
         </section>
 
         {/* Quick Actions Block */}

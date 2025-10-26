@@ -71,8 +71,12 @@ function App() {
               </button>
             </li>
             <li>
+              {/* --- THIS IS THE FIX --- */}
               <button
-                onClick={() => setActivePage("ledger")}
+                onClick={() => {
+                  setActivePage("ledger");
+                  setSelectedDate(new Date()); // Resets the date to today
+                }}
                 className={`w-full text-left flex items-center gap-3 p-3 rounded-lg transition-colors ${
                   activePage === "ledger"
                     ? "bg-gray-200 text-blue-600"

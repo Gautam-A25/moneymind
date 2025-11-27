@@ -58,6 +58,8 @@ function Ledger({ entries, setEntries, selectedDate }) {
     setEditingId(entry.id);
     setLabel(entry.label);
     setAmount(Math.abs(entry.amount)); // Edit with a positive number
+    const type = entry.amount < 0 ? "expense" : "income";
+    setTransactionType(type);
     setCategory(entry.category || "Other");
   };
 

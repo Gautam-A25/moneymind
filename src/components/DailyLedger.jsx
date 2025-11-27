@@ -1,3 +1,4 @@
+import React from "react";
 import Ledger from "../pages/Ledger";
 
 function DailyLedger({ entries, setEntries, selectedDate, setSelectedDate }) {
@@ -28,12 +29,20 @@ function DailyLedger({ entries, setEntries, selectedDate, setSelectedDate }) {
     <div className="flex flex-col items-center w-full">
       {/* Date Navigation Bar */}
       <div className="bg-white shadow rounded-2xl p-4 w-full mb-6">
-        <h3 className="text-xl font-semibold mb-4">
-          {selectedDate.toLocaleString("default", {
-            month: "long",
-            year: "numeric",
-          })}
-        </h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-semibold">
+            {selectedDate.toLocaleString("default", {
+              month: "long",
+              year: "numeric",
+            })}
+          </h3>
+          <button
+            onClick={() => setSelectedDate(new Date())}
+            className="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            Today
+          </button>
+        </div>
         <div className="flex justify-between items-center text-center">
           {weekDates.map((date) => {
             const dayName = date.toLocaleString("default", {

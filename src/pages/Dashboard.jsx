@@ -1,8 +1,8 @@
 import React from "react";
 import Calendar from "react-calendar";
+import TrendChart from "../components/TrendChart";
 import "react-calendar/dist/Calendar.css";
 import { Plus } from "lucide-react";
-import TrendChart from "../components/TrendChart";
 
 export default function Dashboard({
   balance,
@@ -15,7 +15,6 @@ export default function Dashboard({
   onAddTransactionClick,
 }) {
   const filteredEntries = entries.filter((entry) => {
-    // Ensure entry.date is a valid date object before comparing
     const entryDate = new Date(entry.date);
     return (
       entryDate.getFullYear() === selectedDate.getFullYear() &&
@@ -97,11 +96,23 @@ export default function Dashboard({
 
         {/* Calendar Block */}
         <section className="bg-white shadow rounded-2xl p-6 col-span-1">
-          <h3 className="text-xl font-semibold mb-2">Calendar</h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-semibold">Calendar</h3>
+            <button
+              onClick={() => setSelectedDate(new Date())}
+              className="px-3 py-1 bg-blue-100 text-blue-600 text-sm font-semibold rounded-lg hover:bg-blue-200 transition-colors"
+            >
+              Today
+            </button>
+          </div>
           <Calendar
             onChange={setSelectedDate}
             value={selectedDate}
-            className="rounded-md border"
+            activeStartDate={selectedDate} // Ensure calendar view follows the selected date
+            onActiveStartDateChange={({ activeStartDate }) =>
+              setSelectedDate(activeStartDate)
+            } // Optional: Sync if user navigates via calendar internal controls
+            className="rounded-md border w-full"
           />
           <p className="text-gray-600 text-sm mt-2">
             Selected date:{" "}
@@ -114,7 +125,6 @@ export default function Dashboard({
         <section className="bg-white shadow rounded-2xl p-6">
           <h3 className="text-xl font-semibold mb-4">Insights</h3>
           {entries.length > 0 ? (
-            // Give the chart a container with a defined height
             <div className="w-full h-48">
               <TrendChart entries={entries} size="small" />
             </div>
@@ -129,8 +139,8 @@ export default function Dashboard({
         <section className="bg-white shadow rounded-2xl p-6 flex flex-col items-start">
           <h3 className="text-xl font-semibold mb-4">Quick Actions</h3>
           <button
-            onClick={onAddTransactionClick} // This now calls the function from App.jsx
-            className="flex items-center gap-2 px-6 py-3 cursor-pointer rounded-lg bg-green-500 text-white font-semibold hover:bg-green-600 transition-colors"
+            onClick={onAddTransactionClick}
+            className="flex items-center gap-2 px-6 py-3 rounded-lg bg-green-500 text-white font-semibold hover:bg-green-600 transition-colors"
           >
             <Plus size={20} /> Add Transaction
           </button>

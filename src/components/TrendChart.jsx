@@ -19,70 +19,73 @@ ChartJS.register(
   Legend
 );
 
-/**
- * Processes entries for the bar chart based on the selected time range.
- */
-function processChartData(entries, timeRange) {
+function processChartData(entries, timeRange, referenceDate) {
   const labels = [];
   const incomeByPeriod = {};
   const expenseByPeriod = {};
-  const now = new Date();
+
+  // Ensure we have a valid date object
+  const anchor = referenceDate ? new Date(referenceDate) : new Date();
 
   let startDate;
+  let endDate;
 
   if (timeRange === "week") {
-    // --- WEEKLY LOGIC (Last 7 Days) ---
-    startDate = new Date();
-    startDate.setDate(now.getDate() - 6); // 6 days ago + today = 7 days
+    // --- WEEKLY LOGIC ---
+    // Calculate start of the week (say, 6 days ago from the anchor)
+    startDate = new Date(anchor);
+    startDate.setDate(anchor.getDate() - 6);
     startDate.setHours(0, 0, 0, 0);
 
+    endDate = new Date(anchor);
+    endDate.setHours(23, 59, 59, 999);
+
     for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(now.getDate() - i);
+      const d = new Date(anchor);
+      d.setDate(anchor.getDate() - i);
       const label = d.toLocaleDateString("en-US", { weekday: "short" });
 
       if (!labels.includes(label)) {
-        // Avoid duplicate labels if week spans month end
         labels.push(label);
       }
       incomeByPeriod[label] = 0;
       expenseByPeriod[label] = 0;
     }
   } else {
-    // --- MONTHLY LOGIC (Current Calendar Month) ---
-    const year = now.getFullYear();
-    const month = now.getMonth();
+    // --- MONTHLY LOGIC ---
+    // Show the whole month of the anchor date
+    const year = anchor.getFullYear();
+    const month = anchor.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    startDate = new Date(year, month, 1); // 1st day of the current month
+    startDate = new Date(year, month, 1);
     startDate.setHours(0, 0, 0, 0);
 
+    endDate = new Date(year, month, daysInMonth);
+    endDate.setHours(23, 59, 59, 999);
+
     for (let day = 1; day <= daysInMonth; day++) {
-      const label = String(day); // Use day number as label
+      const label = String(day);
       labels.push(label);
       incomeByPeriod[label] = 0;
       expenseByPeriod[label] = 0;
     }
   }
 
-  // 3. Aggregate data from entries
+  // Aggregate data
   entries.forEach((entry) => {
     const entryDate = new Date(entry.date);
 
-    // Only process entries within the calculated date range
-    if (entryDate >= startDate) {
+    // Check if entry falls within our calculated range
+    if (entryDate >= startDate && entryDate <= endDate) {
       let label;
 
       if (timeRange === "week") {
         label = entryDate.toLocaleDateString("en-US", { weekday: "short" });
       } else {
-        // Only include entries from the current month
-        if (entryDate.getMonth() === now.getMonth()) {
-          label = String(entryDate.getDate());
-        }
+        label = String(entryDate.getDate());
       }
 
-      // FIX: Use (label in object) to check for property. This fixes the ESLint error.
       if (label in incomeByPeriod) {
         if (entry.amount > 0) {
           incomeByPeriod[label] += entry.amount;
@@ -97,15 +100,21 @@ function processChartData(entries, timeRange) {
     labels,
     incomeData: labels.map((label) => incomeByPeriod[label]),
     expenseData: labels.map((label) => expenseByPeriod[label]),
+    periodLabel:
+      timeRange === "week"
+        ? `Week ending ${anchor.toLocaleDateString()}`
+        : anchor.toLocaleString("en-US", { month: "long", year: "numeric" }),
   };
 }
 
-export default function TrendChart({ entries, size = "large" }) {
-  const [timeRange, setTimeRange] = useState("week"); // 'week' or 'month'
+export default function TrendChart({ entries, selectedDate, size = "large" }) {
+  const [timeRange, setTimeRange] = useState("week");
 
-  const { labels, incomeData, expenseData } = processChartData(
+  // Recalculate whenever entries, timeRange, or the selectedDate changes
+  const { labels, incomeData, expenseData, periodLabel } = processChartData(
     entries,
-    timeRange
+    timeRange,
+    selectedDate
   );
 
   const barData = {
@@ -134,12 +143,7 @@ export default function TrendChart({ entries, size = "large" }) {
       },
       title: {
         display: size !== "small",
-        text:
-          timeRange === "week"
-            ? "Income & Expense - Last 7 Days"
-            : `Income & Expense - ${new Date().toLocaleString("en-US", {
-                month: "long",
-              })}`,
+        text: `Income & Expense - ${periodLabel}`,
       },
     },
     scales: {
@@ -177,7 +181,6 @@ export default function TrendChart({ entries, size = "large" }) {
         </button>
       </div>
 
-      {/* Chart */}
       <div className="relative flex-grow">
         <Bar options={chartOptions} data={barData} />
       </div>
